@@ -1,0 +1,49 @@
+from ursina import *
+from ursina.prefabs.first_person_controller import FirstPersonController
+import random
+
+app = Ursina()
+window.fullscreen = True
+player = FirstPersonController()
+player.position = (0, 50, 0)
+score = 0
+sun = Entity(model = 'sphere', scale = (50, 50, 50), collider = 'box', color = color.yellow, position = (10, 200, 40))
+enemy = Entity(model = 'cube', scale = (1, 2, 1), color = color.brown, collider = 'box', texture = 'brick', position = (random.randint(0, 8), 2, 40))
+
+for i in range(11):
+    for j in range(11):
+        block = Entity(model = 'cube', color = color.green, texture = 'grass', collider = 'box', position = (i, 0, j))
+for n in range(11):
+    for o in range(10, 31):
+        x_block = Entity(model = 'cube', color = color.violet, texture = 'white_cube', collider = 'box', position = (n, 0, o))
+
+Sky()
+
+bullet = Entity(model = 'cube', scale = (0.1, 0.1, 0.5), collider = 'box', texture = 'white_cube', color = color.black, position = (10, 2, random.randint(0, 5)))
+
+def update():
+    global score
+    bullet.z += 0.2
+    enemy.z -= 0.1
+    hit_info = bullet.intersects(enemy)
+    if hit_info.hit:
+        enemy.x, enemy.z = random.randint(0, 10), 30
+        score = score + 1
+        print_on_screen('Destroyed')
+    if enemy.z < 0:
+        print_on_screen('You lost!')
+        print('You scored ', str(score) + ' points!')
+        quit()
+    if player.z > 10:
+        player.z -= 0.2
+    if player.y < -20:
+        player.y = 50
+
+def input(key):
+    if key=='left mouse down':
+        bullet.position = (player.x, player.y + 1.5, player.z)
+    if key=='p':
+        print('You scored ', str(score) + ' points!')
+        quit()
+
+app.run()
